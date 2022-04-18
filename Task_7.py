@@ -1,38 +1,45 @@
 import sys
 
-
 sys.stdin = open("input.txt")
 sys.stdout = open("output.txt", 'w')
 
-
-n = int(input())
-
-tree = []
-
-if n != 0:
-    for i in range(n):
-        k, l, r = map(int, input().split())
-        tree.append([k, l, r])
-
-    is_correct_tree = True
+class Tree_node:
+    def __init__(self, key):
+        self.data = key
+        self.left = None
+        self.right = None
 
 
-    for i in range(n):
-        cur_value = tree[i][0]
-        left_index = tree[i][1]
-        right_index = tree[i][2]
+def is_BTS(root, l=None, r=None):
+    if (root == None):
+        return True
+    if (l != None and root.data < l.data):
+        return False
 
-        if left_index != -1 and tree[left_index][0] >= cur_value:
-            is_correct_tree = False
-            break
-        if right_index != -1 and tree[right_index][0] < cur_value:
-            is_correct_tree = False
-            break
+    if (r != None and root.data >= r.data):
+        return False
 
-    if is_correct_tree:
+    return is_BTS(root.left, l, root) and is_BTS(root.right, root, r)
+
+def main():
+
+    n = int(input())
+    if n == 0:
         print("CORRECT")
     else:
-        print("INCORRECT")
-else:
-    print("CORRECT")
-sys.stdout.close()
+        tree_list = [Tree_node(0) for i in range(n)]
+        for i in range(n):
+            val, left, right = map(int, input().split())
+            tree_list[i].data = val
+            if left != -1:
+                tree_list[i].left = tree_list[left]
+            if right != -1:
+                tree_list[i].right = tree_list[right]
+
+        if is_BTS(tree_list[0]):
+            print("CORRECT")
+        else:
+            print("INCORRECT")
+    sys.stdout.close()
+
+main()

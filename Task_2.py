@@ -27,7 +27,7 @@ while r - l > 0.0000000001:
     else:
         l = h[1]
 
-print(h[n - 1])
+print(h[-1])
 sys.stdout.close()
 
 

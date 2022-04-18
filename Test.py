@@ -3,9 +3,7 @@ import sys
 sys.stdin = open("input.txt")
 sys.stdout = open("output.txt", 'w')
 
-
-# Generic tree node class
-class TreeNode(object):
+class AVL_tree_node(object):
     def __init__(self, val):
         self.val = val
         self.left = None
@@ -13,25 +11,15 @@ class TreeNode(object):
         self.height = 1
         self.index = 0
 
-
-# AVL tree class which supports the
-# Insert operation
 class AVL_Tree(object):
 
-    # Recursive function to delete a node with
-    # given key from subtree with given root.
-    # It returns root of the modified subtree.
-    def delete(self, root, key):
-
-        # Step 1 - Perform standard BST delete
+    def delete_node(self, root, key):
         if not root:
             return root
-
         elif key < root.val:
-            root.left = self.delete(root.left, key)
-
+            root.left = self.delete_node(root.left, key)
         elif key > root.val:
-            root.right = self.delete(root.right, key)
+            root.right = self.delete_node(root.right, key)
 
         else:
             if root.left is None:
@@ -44,143 +32,112 @@ class AVL_Tree(object):
                 root = None
                 return temp
 
-            temp = self.getMinValueNode(root.right)
+            temp = self.get_min_node(root.right)
             root.val = temp.val
-            root.right = self.delete(root.right,
-                                     temp.val)
+            root.right = self.delete_node(root.right, temp.val)
 
-        # If the tree has only one node,
-        # simply return it
         if root is None:
             return root
 
-        # Step 2 - Update the height of the
-        # ancestor node
-        root.height = 1 + max(self.getHeight(root.left),
-                              self.getHeight(root.right))
+        root.height = 1 + max(self.get_height(root.left), self.get_height(root.right))
 
-        # Step 3 - Get the balance factor
-        balance = self.getBalance(root)
+        balance = self.get_cur_balance(root)
 
-        # Step 4 - If the node is unbalanced,
-        # then try out the 4 cases
-        # Case 1 - Left Left
-        if balance > 1 and self.getBalance(root.left) >= 0:
-            return self.rightRotate(root)
+        if balance > 1 and self.get_cur_balance(root.left) >= 0:
+            return self.right_rotate(root)
 
-        # Case 2 - Right Right
-        if balance < -1 and self.getBalance(root.right) <= 0:
-            return self.leftRotate(root)
+        if balance < -1 and self.get_cur_balance(root.right) <= 0:
+            return self.left_rotate(root)
 
-        # Case 3 - Left Right
-        if balance > 1 and self.getBalance(root.left) < 0:
-            root.left = self.leftRotate(root.left)
-            return self.rightRotate(root)
+        if balance > 1 and self.get_cur_balance(root.left) < 0:
+            root.left = self.left_rotate(root.left)
+            return self.right_rotate(root)
 
-        # Case 4 - Right Left
-        if balance < -1 and self.getBalance(root.right) > 0:
-            root.right = self.rightRotate(root.right)
-            return self.leftRotate(root)
+        if balance < -1 and self.get_cur_balance(root.right) > 0:
+            root.right = self.right_rotate(root.right)
+            return self.left_rotate(root)
 
         return root
-    # Recursive function to insert key in
-    # subtree rooted with node and returns
-    # new root of subtree.
-    def insert(self, root, key):
 
-        # Step 1 - Perform normal BST
+    def insert_node(self, root, key):
+
         if not root:
-            return TreeNode(key)
+            return AVL_tree_node(key)
         elif key < root.val:
-            root.left = self.insert(root.left, key)
+            root.left = self.insert_node(root.left, key)
         else:
-            root.right = self.insert(root.right, key)
+            root.right = self.insert_node(root.right, key)
 
-        # Step 2 - Update the height of the
-        # ancestor node
-        root.height = 1 + max(self.getHeight(root.left),
-                              self.getHeight(root.right))
+        root.height = 1 + max(self.get_height(root.left), self.get_height(root.right))
 
-        # Step 3 - Get the balance factor
-        balance = self.getBalance(root)
 
-        # Step 4 - If the node is unbalanced,
-        # then try out the 4 cases
-        # Case 1 - Left Left
+        balance = self.get_cur_balance(root)
+
         if balance > 1 and key < root.left.val:
-            return self.rightRotate(root)
+            return self.right_rotate(root)
 
-        # Case 2 - Right Right
         if balance < -1 and key > root.right.val:
-            return self.leftRotate(root)
+            return self.left_rotate(root)
 
-        # Case 3 - Left Right
         if balance > 1 and key > root.left.val:
-            root.left = self.leftRotate(root.left)
-            return self.rightRotate(root)
+            root.left = self.left_rotate(root.left)
+            return self.right_rotate(root)
 
-        # Case 4 - Right Left
         if balance < -1 and key < root.right.val:
-            root.right = self.rightRotate(root.right)
-            return self.leftRotate(root)
+            root.right = self.right_rotate(root.right)
+            return self.left_rotate(root)
 
         return root
 
-    def leftRotate(self, z):
+    def left_rotate(self, n):
 
-        y = z.right
-        T2 = y.left
+        y = n.right
+        y_l = y.left
 
-        # Perform rotation
-        y.left = z
-        z.right = T2
+        y.left = n
+        n.right = y_l
 
-        # Update heights
-        z.height = 1 + max(self.getHeight(z.left),
-                           self.getHeight(z.right))
-        y.height = 1 + max(self.getHeight(y.left),
-                           self.getHeight(y.right))
+        n.height = 1 + max(self.get_height(n.left),
+                           self.get_height(n.right))
+        y.height = 1 + max(self.get_height(y.left),
+                           self.get_height(y.right))
 
-        # Return the new root
         return y
 
-    def rightRotate(self, z):
+    def right_rotate(self, n):
 
-        y = z.left
-        T3 = y.right
+        y = n.left
+        y_r = y.right
 
-        # Perform rotation
-        y.right = z
-        z.left = T3
+        y.right = n
+        n.left = y_r
 
-        # Update heights
-        z.height = 1 + max(self.getHeight(z.left),
-                           self.getHeight(z.right))
-        y.height = 1 + max(self.getHeight(y.left),
-                           self.getHeight(y.right))
+        n.height = 1 + max(self.get_height(n.left),
+                           self.get_height(n.right))
+        y.height = 1 + max(self.get_height(y.left),
+                           self.get_height(y.right))
 
-        # Return the new root
         return y
 
-    def getHeight(self, root):
+    def get_height(self, root):
         if not root:
             return 0
 
         return root.height
 
-    def getMinValueNode(self, root):
+    def get_min_node(self, root):
         if root is None or root.left is None:
             return root
 
-        return self.getMinValueNode(root.left)
+        return self.get_min_node(root.left)
 
-    def getBalance(self, root):
+    def get_cur_balance(self, root):
         if not root:
             return 0
 
-        return self.getHeight(root.left) - self.getHeight(root.right)
+        return self.get_height(root.left) - self.get_height(root.right)
 
-    def preOrder(self, root):
+    def print_tree(self, root):
 
         if not root:
             return
@@ -189,8 +146,8 @@ class AVL_Tree(object):
         right_index = root.right.index if root.right is not None else 0
 
         print(f"{value} {left_index} { right_index}")
-        self.preOrder(root.left)
-        self.preOrder(root.right)
+        self.print_tree(root.left)
+        self.print_tree(root.right)
 
     def set_index(self, root, index=0):
         if not root:
@@ -206,15 +163,13 @@ class AVL_Tree(object):
 
 index_t = 0
 def main():
-
-    # Driver program to test above function
     myTree = AVL_Tree()
     root = None
 
     n = int(input())
     flag = -1
     if n != 0:
-        tree_list = [TreeNode(0) for i in range(n)]
+        tree_list = [AVL_tree_node(0) for i in range(n)]
         for i in range(n):
             val, left, right = map(int, input().split())
 
@@ -231,7 +186,7 @@ def main():
             if right != -1:
                 tree_list[i].right = tree_list[right]
 
-        tree_list[0] = myTree.delete(tree_list[0], int(input()))
+        tree_list[0] = myTree.insert_node(tree_list[0], int(input()))
 
         if flag == 2:
             '''
@@ -245,12 +200,12 @@ def main():
             print('5 0 0')'''
             print(n + 1)
             myTree.set_index(tree_list[0])
-            myTree.preOrder(tree_list[0])
+            myTree.print_tree(tree_list[0])
 
         else:
-            print(n - 1)
+            print(n + 1)
             myTree.set_index(tree_list[0])
-            myTree.preOrder(tree_list[0])
+            myTree.print_tree(tree_list[0])
     else:
         print(n+1)
         print(int(input()), 0, 0)

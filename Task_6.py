@@ -25,13 +25,11 @@ def main():
 
     n = int(input())
     if n == 0:
-        print("YES")
+        print("CORRECT")
     else:
         tree_list = [Tree_node(0) for i in range(n)]
         for i in range(n):
             val, left, right = map(int, input().split())
-            left -= 1
-            right -= 1
             tree_list[i].data = val
             if left != -1:
                 tree_list[i].left = tree_list[left]
@@ -39,9 +37,9 @@ def main():
                 tree_list[i].right = tree_list[right]
 
         if is_BTS(tree_list[0]):
-            print("YES")
+            print("CORRECT")
         else:
-            print("NO")
+            print("INCORRECT")
     sys.stdout.close()
 
 main()
